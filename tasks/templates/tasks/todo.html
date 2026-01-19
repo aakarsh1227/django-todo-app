@@ -1,0 +1,16 @@
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Add a new task...">
+    <button type="submit">Add</button>
+</form>
+
+<ul>
+    {% for task in tasks %}
+        <li>{{ task.title }} - Done</li>
+    {% endfor %}
+</ul>
+
+<style>
+    .done { color: green; font-weight: bold; }
+    .pending { color: orange; }
+</style>
