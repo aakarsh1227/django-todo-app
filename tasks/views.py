@@ -1,17 +1,26 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task
 
 def task_list(request):
-    tasks = Task.objects.all()
     if request.method == 'POST':
         title = request.POST.get('title')
-        # We explicitly set completed=True here
-        Task.objects.create(title=title, completed=True) 
+        if title: # if empty tasks
+            Task.objects.create(title=title)
         return redirect('task_list')
+    
+    tasks = Task.objects.all().order_by('-created_at')
     return render(request, 'tasks/todo.html', {'tasks': tasks})
 
-def complete_task(request, task_id):
-    task = Task.objects.get(id=task_id) # Find the specific task
-    task.completed = True               # Change status to True
-    task.save()                         # Save changes to PostgreSQL
-    return redirect('task_list')        # Go back to the main page
+
+def update_task_status(request, pk):
+    task = get_object_or_404(Task, id=pk)
+    # This toggles the 'completed' status in the database
+    task.completed = not task.completed 
+    task.save()
+    return redirect('/') # Sends you straight back to the list
+
+# BACKEND DELETE: Deletes the item immediately
+def delete_task_backend(request, pk):
+    task = get_object_or_404(Task, id=pk)
+    task.delete()
+    return redirect('/') # Sends you straight back to the list
